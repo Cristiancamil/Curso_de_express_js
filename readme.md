@@ -23,7 +23,8 @@ Este proyecto utiliza el siguiente *stack*:
 | **Framework** | **Express** | Framework principal para la construcción de la API. |
 | **Desarrollo** | **Nodemon** | Reinicio automático del servidor en modo desarrollo. |
 | **Variables** | **dotenv** | Gestión de variables de entorno. |
-| **Middleware** | **Body-parser** | Analiza los cuerpos de las solicitudes entrantes (JSON, URL-encoded). |
+| **Middleware** | **errorHandler** | Gestión de solicitudes HTTP que se hacen al backend |
+| **Middleware** | **LogguerMiddleware** | Gestión de errores |
 | **Seguridad** | **CORS** | Configuración de políticas de acceso cruzado. |
 
 ---
