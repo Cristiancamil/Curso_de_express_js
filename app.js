@@ -1,6 +1,10 @@
 require('dotenv').config()
 const express = require('express')
+
+// Importando funciones para realizar validaciones de datos y funciones para imprimir en el log
 const { validateUser } = require('./utils/validation')
+const LogguerMiddleware = require('./middlewares/logguer')
+const errorHandler = require('./middlewares/errorHandler')
 
 // Librería para trabajar con archivos en node.js
 const fs = require('fs')
@@ -11,6 +15,10 @@ const usersFilePath = path.join(__dirname, 'users.json')
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Llama al middleware que imprime el log de todas las acciones que se realizaran en el backend
+app.use(LogguerMiddleware)
+app.use(errorHandler)
 
 // Puerto donde está corriendo el backend
 const PORT = process.env.PORT || 3000
