@@ -1,26 +1,24 @@
 require('dotenv').config()
 const express = require('express')
-const bodyParser = require('body-parser')
+const { validateUser } = require('./utils/validation')
 
+// Librería para trabajar con archivos en node.js
+const fs = require('fs')
+const path = require('path')
+const usersFilePath = path.join(__dirname, 'users.json')
+
+// Levantando la app del backend con express.
 const app = express()
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
+// Puerto donde está corriendo el backend
 const PORT = process.env.PORT || 3000
 
-app.get('/', (req, res) => {
-  res.send(`
-    <h1>Curso de Express.js</h1> 
-    <p>Esto es una aplicación node.js con express.js</p> 
-    <p>Corre en el puerto: ${PORT}</p>
-  `)
-})
 
-app.get('/users/:id', (req, res) => {
-  const userId = req.params.id
-  res.send(`Mostrar informacion del usuario con ID ${userId}`)
-})
 
+// -------------------------------------------------------------------------------------------------------------
+// Endpoint para obtener parámetros enviados por url
 app.get('/search', (req, res) => {
   const terms = req.query.termino || 'No especificado'
   const category = req.query.categoria || 'Todas'
@@ -32,6 +30,7 @@ app.get('/search', (req, res) => {
   )
 })
 
+// Endpoint para obtener parámetros enviados por JSON
 app.post('/form', (req, res) => {
   const name = req.body.nombre || 'Anónimo'
   const email = req.body.email || 'No proporcionado'
@@ -45,6 +44,7 @@ app.post('/form', (req, res) => {
   })
 })
 
+// Endpoint para validar que si hay parámetros presentes en la estructura JSON
 app.post('/api/data', (req, res) => {
   const data = req.body
 
@@ -58,6 +58,128 @@ app.post('/api/data', (req, res) => {
   })
 })
 
+
+
+// ---------------------------------------------------------------------------------------------------------------
+// Endpoint para obtener todos los usuarios
+app.get('/users', (req, res) => {
+  // Lee el archivo
+  fs.readFile(usersFilePath, 'utf-8', (err, data) => {
+    // Maneja el error
+    if (err)  {
+      return res.status(500).json({ error: 'Error con conexión de datos.' })
+    }
+    // Parsea la información
+    const users = JSON.parse(data)
+    // Retorna la información
+    res.json(users)
+  })
+})
+
+// Endpoiny para crear un usuario
+app.post('/users', (req, res) => {
+  // Obtiene el JSON que envía el frontend.
+  const newUser = req.body
+  
+  // Lee el archivo
+  fs.readFile(usersFilePath, 'utf-8', (err, data) => {
+    // Maneja el error
+    if (err) {
+      return res.status(500).json({ error: 'Error con conexión de datos.' })
+    }
+    // Parsea la información
+    const users = JSON.parse(data)
+
+    // Valida que la información obtenida cumpla con las validaciones que se implementarón
+    const validation = validateUser(newUser, users)
+    if (!validation.isValid) {
+      return res.status(400).json({ error: validation.error })
+    }
+
+    // Agrega la informcaión al archivo
+    users.push(newUser)
+
+    // Escribe la informcaión y guarda en el archivo.
+    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error al guardar el usuario.' })
+      }
+      res.status(201).json(newUser)
+    })
+  })
+})
+
+// Endpoint para actualizar un usuario
+app.put('/users/:id', (req, res) => {
+  // Obtenien la información que se envía desde el frontend
+  const userId = parseInt(req.params.id, 10)
+  const updateUser = req.body
+
+  // Lee el archivo
+  fs.readFile(usersFilePath, 'utf-8', (err, data) => {
+    // Maneja el error
+    if(err) {
+      return res.status(400).json({ error: 'Error con conexión de datos.' })
+    } 
+    // Parsea la información
+    let users = JSON.parse(data)
+
+    // Valida que la infromación enviada por el frontend cumpla con las validaciones
+    const validation = validateUser(updateUser, users)
+    if (!validation.isValid) {
+      return res.status(400).json({ error: validation.error })
+    }
+
+    // Mapeamos el archivo para saber si ya existe un archivo con el id que se envía
+    users = users.map(user => 
+      user.id === userId ? {...user, ...updateUser} : user
+    )
+
+    // Escribimos y guardamos el archivo
+    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+      if(err) {
+        return res
+          .status(500)
+          .json({ error: 'Error al actualizar el usuario' })
+      }
+      // Retorna el usuario actualizado
+      res.json(updateUser)
+    })
+  })
+})
+
+// Endpoint para eiliminar un usuario
+app.delete('/users/:id', (req, res) => {
+  const userId = parseInt(req.params.id, 10)
+  
+  // Lee el archivo
+  fs.readFile(usersFilePath, 'utf-8', (err, data) => {
+    // Maneja los errores
+    if (err) {
+      return res.status(500).json({ error: 'Error con conexión de datos.' })
+    }
+
+    // Pasea la información
+    let users = JSON.parse(data)
+
+    // Filtra los usuario en el archivo para identificar a cual va a eliminar
+    users = users.filter(user => user.id !== userId)
+    
+    // Escribimos y guardamos el archivo
+    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), err => {
+      // Manejamos el error
+      if (err) {
+        return res.status(500).json({ error: 'Error al eliminar el usuario' })
+      }
+      res.status(204).send()
+    })
+  })
+
+})
+
+
+// -------------------------------------------------------------------------------------------------------------
+// El servidor escucha en el puerto.
 app.listen(PORT, () => {
   console.log(`Servidor: http://localhost:${PORT}`);  
 })
