@@ -1,0 +1,34 @@
+Para instalar prisma, prisma/client y postgres ejecutar las siguientes líneas:
+
+#Instalamos prisma
+npm install prisma --save-dev
+
+#Instalamaos prisma/client
+npm install @prisma/client @prisma/adapter-pg
+
+#Instalamos postgresql
+npm install pg
+
+#Inicializar el proyecto con prisma para que se añadan las carpetas al proyecto 
+npx prisma init
+
+#Configurar la conexión a la base de datos en el .env
+DATABASE_URL="postgresql://postgres@localhost:5432/invoflow"
+
+#Crear los modelos en el archivo schema.prisma
+provider = "prisma-client-js"
+
+#Reset todas las migraciones
+npx prisma migrate reset
+
+#Inicializar el servicio de @prisma/client
+npx prisma generate
+
+#Ejecutar las migraciones
+npx prisma migrate dev --name init
+
+#Actualizar una tabla en la base de datos
+npx prisma migrate dev --name "update-user-model"
+
+#Ejecutar siempre este comando para que la base de datos se sincronice con el código después de una modificación a la base de datos
+npx prisma generate

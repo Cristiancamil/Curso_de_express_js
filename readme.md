@@ -26,6 +26,8 @@ Este proyecto utiliza el siguiente *stack*:
 | **Middleware** | **errorHandler** | Gestión de solicitudes HTTP que se hacen al backend |
 | **Middleware** | **LogguerMiddleware** | Gestión de errores |
 | **Seguridad** | **CORS** | Configuración de políticas de acceso cruzado. |
+| **BD** | **PostgreSQL** | Basde de datos |
+| **ORM** | **Prisma** | Permite trabajar con la BD dentro del backend |
 
 ---
 
@@ -41,7 +43,7 @@ Asegúrate de tener **Node.js** (v14 o superior) y **npm** instalados.
 
 1.  **Clonar el Repositorio:**
     ```bash
-    git clone [https://github.com/tu-usuario/invoflow-backend.git](https://github.com/tu-usuario/invoflow-backend.git)
+    git clone [https://github.com/Cristiancamil/Curso_de_express_js.git]
     cd invoflow-backend
     ```
 2.  **Instalar Dependencias:**
@@ -53,6 +55,7 @@ Asegúrate de tener **Node.js** (v14 o superior) y **npm** instalados.
     ```bash
     # Variables del Servidor
     PORT=3000
+    NODE_ENV=develop
     
     # Ejemplo de conexión a DB (Ajustar según tu base de datos)
     # DB_HOST=localhost

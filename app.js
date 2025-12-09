@@ -1,5 +1,11 @@
 require('dotenv').config()
 const express = require('express')
+const { PrismaPg } = require('@prisma/adapter-pg')
+const { PrismaClient } = require('./generated/prisma')
+
+const connectionString = `${process.env.DATABASE_URL}`
+const adapter = new PrismaPg({ connectionString })
+const prisma = new PrismaClient({ adapter })
 
 // Importando funciones para realizar validaciones de datos y funciones para imprimir en el log
 const { validateUser } = require('./utils/validation')
@@ -185,6 +191,19 @@ app.delete('/users/:id', (req, res) => {
 
 })
 
+
+app.get('/error', (req, res, next) => {
+  next(new Error('Error Intencional'))
+})
+
+app.get('/db/users', async (req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Error al comunicarse con la base de datos" });
+  }
+});
 
 // -------------------------------------------------------------------------------------------------------------
 // El servidor escucha en el puerto.
