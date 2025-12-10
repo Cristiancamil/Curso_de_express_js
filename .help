@@ -32,3 +32,9 @@ npx prisma migrate dev --name "update-user-model"
 
 #Ejecutar siempre este comando para que la base de datos se sincronice con el código después de una modificación a la base de datos
 npx prisma generate
+
+#Instalamos jsonwebtoken para seguridad
+npm install jsonwebtoken
+
+#Instalamos bcrypt para encriptar y desencriptar la contraseña
+npm install bcrypt
