@@ -1,4 +1,4 @@
-const { createTimeBlockService, listReservationsService } = require('../services/adminServices')
+const { createTimeBlockService, listReservationService } = require('../services/adminServices')
 
 const createTimeBlock = async (req, res) => {
   if(req.user.role !== 'ADMIN') {
@@ -21,7 +21,7 @@ const listReservations = async (req, res) => {
   }
 
   try {
-    const reservations = await listReservationsService()
+    const reservations = await listReservationService()
     res.status(200).json(reservations)
   } catch (error) {
     res.status(500).json({ Error: 'Error Fetching reservations' })
@@ -29,6 +29,6 @@ const listReservations = async (req, res) => {
 }
 
 module.exports = {
-  createTimeBlockService,
-  listReservationsService
+  createTimeBlock,
+  listReservations
 }
