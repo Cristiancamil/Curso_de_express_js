@@ -1,10 +1,8 @@
 require('dotenv').config()
-// Utilizamos el cliente de Prisma para interactuar con la base de datos
 const { PrismaPg } = require('@prisma/adapter-pg')
 const { PrismaClient } = require('../generated/prisma')
 
 const connectionString = `${process.env.DATABASE_URL}`
-
 const adapter = new PrismaPg({ connectionString })
 const prisma = new PrismaClient({ adapter })
 
@@ -23,9 +21,49 @@ async function main() {
   // }
 
   // console.log('Usuarios de demostración creados con éxito');
-  await prisma.user.deleteMany()
+  // await prisma.user.deleteMany()
+
+  // Crear usuarios
+
+  const user1 = await prisma.user.create({
+    data: {
+      email: 'sistemas@gmail.com',
+      password: 'W0k32xu9fIyJ2H',
+      name: 'Admin',
+      role: 'ADMIN'
+    }
+  });
+
+  // Crear bloques de tiempo
+  const timeBlock1 = await prisma.timeBlock.create({
+    data: {
+      startTime: new Date('2025-12-11T17:55:00Z'),
+      endTime: new Date('2025-12-11T18:55:00Z')
+    }
+  });
+
+  const timeBlock2 = await prisma.timeBlock.create({
+    data: {
+      startTime: new Date('2025-12-11T18:55:00Z'),
+      endTime: new Date('2025-12-11T19:55:00Z')
+    }
+  });
+
+  // Crear citas
+  await prisma.appointment.create({
+    data: {
+      date: new Date('2025-12-11T17:55:00Z'),
+      user: { connect: { id: user1.id } },
+      timeBlock: { connect: { id: timeBlock1.id } }
+    }
+  });
 }
 
 main()
-  .catch(e => console.error(e))
-  .finally(async () => await prisma.$disconnect());
+  .catch(e => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  });
